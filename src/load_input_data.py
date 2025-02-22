@@ -3,8 +3,6 @@ import pandas as pd
 from openpyxl import load_workbook
 from pathlib import Path
 from logger_config import logger
-# from utils import validate_file
-# from update_xlsx_data import replace_table_data, get_excel_table_details
 
 # Constants
 XL_TABLE = "xl_table"
@@ -43,16 +41,16 @@ def add_file_to_load_info(file_info, files_to_load):
     Returns:
         dict: Updated `files_to_load` dictionary.
     """
+    logger.debug(f"Running: add_file_to_load_info")
 
     # Validate that `file_info` contains only one key
     validate_single_key(file_info)
 
     for file_name, data_info in file_info.items():
-        print(f"file_name:{file_name}")
-        print(f"data_info:{data_info}")
         file_extension = os.path.splitext(file_name)[1].lower()  # Normalize file extension
 
         if file_extension == ".csv":
+            logger.debug(f"Loading CSV: {file_name}")
             # Initialize entry if not exists
             files_to_load.setdefault(file_name, {"cols": set()})
 
@@ -69,8 +67,6 @@ def add_file_to_load_info(file_info, files_to_load):
             files_to_load.setdefault(file_name, {})
 
             for xl_type, xl_settings in data_info.items():
-                print(f"xl_type:{xl_type}")
-                print(f"xl_settings:{xl_settings}")
                 if xl_type not in {XL_TABLE, XL_SHEET}:
                     raise ValueError(f"❌ Error: Unsupported `xl_type`: {xl_type}")
 
@@ -115,9 +111,9 @@ def load_excel_sheet(file_path, sheet_name, columns_to_load):
         FileNotFoundError: If the file does not exist.
         ValueError: If the sheet or columns are not found.
     """
-    logger.info(f"file_path:{file_path}")
-    logger.info(f"sheet_name:{sheet_name}")
-    logger.info(f"columns_to_load:{columns_to_load}")
+    logger.debug(f"file_path:{file_path}")
+    logger.debug(f"sheet_name:{sheet_name}")
+    logger.debug(f"columns_to_load:{columns_to_load}")
 
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"❌ Error: File '{file_path}' not found.")
@@ -130,93 +126,112 @@ def load_excel_sheet(file_path, sheet_name, columns_to_load):
 
     return df
 
+from update_xlsx_data import xl_range_details
 
-def load_input_data(input_files_folder, input_data_dict):
+def extract_table_from_sheet(sheet, table_range):
+    """Extracts a table from an Excel sheet into a DataFrame."""
+    (
+        _,
+        _,
+        _,
+        start_row_number,
+        start_col_number,
+        _,
+        end_row_number,
+        end_col_number,
+    ) = xl_range_details(table_range)
+
+    data = [
+        [cell.value for cell in row]
+        for row in sheet.iter_rows(min_row=start_row_number, max_row=end_row_number, min_col=start_col_number, max_col=end_col_number)
+    ]
+
+    df = pd.DataFrame(data[1:], columns=data[0])  # First row as headers
+
+    return df
+
+
+def load_input_data(input_files_folder: str, input_data_dict: dict) -> dict:
+    """
+    Loads input data from CSV and Excel files based on a given configuration.
+
+    Args:
+        input_files_folder (str): The folder containing input files.
+        input_data_dict (dict): Dictionary defining the structure and content to be loaded.
+
+    Returns:
+        dict: Updated input_data_dict with loaded data.
+    
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        ValueError: If an unsupported file type is encountered.
+        Exception: For any other errors during processing.
+    """
+
+    logger.info("-" * 50)
+    logger.info("Starting input data loading process...")
 
     for file_name, data_config in input_data_dict.items():
-        file_extension = os.path.splitext(file_name)[1].lower()  # Normalize file extension
+        file_path = Path(input_files_folder) / file_name
+        file_extension = file_path.suffix.lower()  # Normalize file extension
+
+        if not file_path.exists():
+            logger.error(f"File not found: {file_path}")
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        logger.info(f"Processing file: {file_path}")
 
         if file_extension == '.csv':
-            logger.info(f"TO DO - import csv data")
+            logger.debug("Loading CSV data.")
+            column_names = data_config['cols']
+            df = pd.read_csv(file_path, usecols=column_names)
+            input_data_dict[file_name]["data"] = df
+
 
         elif file_extension == '.xlsx':
-            file_path=os.path.join(input_files_folder, file_name)
-            file_path=Path(file_path)
-            print(f"file_path:{file_path}")
             wb = load_workbook(file_path, data_only=False)
+            logger.info(f"Opened Excel file: {file_path}")
 
             for xl_type, xl_config in data_config.items():
                 if xl_type == "xl_sheets":
                     for sheet_name, cols_dict in xl_config.items():
-                        data_pd = load_excel_sheet(
-                            file_path=file_path,
-                            sheet_name=sheet_name,
-                            columns_to_load=list(cols_dict['cols'])
-                        )
-                        input_data_dict[file_name][xl_type][sheet_name]["data"] = data_pd
+                        logger.info(f"Loading sheet: {sheet_name}")
+                        try:
+                            data_pd = load_excel_sheet(
+                                file_path=file_path,
+                                sheet_name=sheet_name,
+                                columns_to_load=list(cols_dict.get('cols', []))
+                            )
+                            input_data_dict[file_name][xl_type][sheet_name]["data"] = data_pd
+                            logger.info(f"Loaded sheet '{sheet_name}' successfully.")
+
+                        except Exception as e:
+                            logger.error(f"Error loading sheet '{sheet_name}': {e}")
+                            raise
 
                 elif xl_type == "xl_tables":
-                    print(xl_config)
+                    logger.debug("Processing Excel tables...")
                     for table_name, cols_dict in xl_config.items():
-                        print(f"table_name:{table_name}")
-                        print(f"cols_dict:{cols_dict}")
+                        logger.debug(f"Searching for table: {table_name}")
+                        
                         for sheet in wb.worksheets:
-                            print(f"sheet:{sheet}")
-                            if hasattr(sheet, "tables"):  # Tables exist in the sheet
-                                for table in sheet.tables.values():
-                                    print(f"table:{table}")
-                                    if table.name == table_name:
-                                        if table.ref: # Returns the table range like "A1:C10"
-                                            print(f"table.ref:{table.ref}")
-                                            df = pd.DataFrame(sheet[table.ref])
+                            if table_name in sheet.tables: # to confirm here # to confirm here # to confirm here # to confirm here
+                                table = sheet.tables[table_name]
+                                table_range = table.ref  # e.g., "A1:C10"
 
-                                            # Convert openpyxl Cell objects to values
-                                            df = df.applymap(lambda cell: cell.value)
-                                            
-                                            # Set column headers
-                                            df.columns = df.iloc[0]  # First row as header
-                                            df = df[1:].reset_index(drop=True)  # Remove header row from data
+                                if table_range:
+                                    logger.info(f"Extracting table: {table_name} from range {table_range}")
+                                    df = extract_table_from_sheet(sheet, table_range)
 
-                                            input_data_dict[file_name][xl_type][table_name]["data"] = df
+                                    input_data_dict[file_name][xl_type][table_name]["data"] = df
+                                    logger.info(f"Table '{table_name}' loaded successfully.")
 
+        else:
+            logger.error(f"Unsupported file format: {file_extension}")
+            raise ValueError(f"Unsupported file format: {file_extension}")
+
+    logger.info("Input data loading process completed.")
     return input_data_dict
-
-
-
-# # Loop through each table in xl_config
-# for table_name in xl_config.keys():
-#     for sheet in wb.worksheets:
-#         table_range = get_table_range(sheet, table_name)
-        
-#         if table_range:
-#             # Read the table range into a DataFrame
-#             df = pd.DataFrame(sheet[table_range])
-            
-#             # Convert openpyxl Cell objects to values
-#             df = df.applymap(lambda cell: cell.value)
-            
-#             # Set column headers
-#             df.columns = df.iloc[0]  # First row as header
-#             df = df[1:].reset_index(drop=True)  # Remove header row from data
-            
-#             # Store in dictionary
-#             dataframes[table_name] = df
-#             break  # Stop searching once the table is found
-
-
-#                     print(xl_config)
-#                     exit()
-
-
-#                 else:
-#                     err_msg = f"❌ Error: Unsupported xl_type: {xl_type}"
-#                     logger.error(err_msg)
-#                     raise ValueError(err_msg)
-
-#         else:
-#             raise ValueError(f"❌ Error: Unsupported file extension: {file_extension}")
-
-#     return input_data_dict
 
 
 def input_data_loader(input_files_folder, config):
@@ -242,17 +257,15 @@ def input_data_loader(input_files_folder, config):
 
     # Iterate through config to determine required input files
     for output_file, outputs in config.get("output_from_input_dict", {}).items():
-        logger.info(f"📁 Processing Output File: {output_file}")
+        logger.info(f"Identifying data required for output file {output_file}")
 
         # Process tables
-        logger.info("-" * 50)
-        logger.info("Processing tables input data")
+        logger.info("Identifying tables to source from input data")
         for _, file_info in outputs.get("tables", {}).items():
             files_to_load = add_file_to_load_info(file_info, files_to_load)
 
         # Process sheets
-        logger.info("-" * 50)
-        logger.info("Processing sheet input data")
+        logger.info("Identifying sheets to source from input data")
         for _, file_info in outputs.get("sheets", {}).items():
             files_to_load = add_file_to_load_info(file_info, files_to_load)
 
@@ -262,6 +275,6 @@ def input_data_loader(input_files_folder, config):
         input_data_dict=files_to_load
     )
 
-    logger.info("📂 INPUT DATA LOAD COMPLETE")
+    logger.info("")
 
     return input_data_dict

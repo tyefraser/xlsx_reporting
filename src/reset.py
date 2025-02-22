@@ -38,4 +38,9 @@ destination_file = file_to_delete
 delete_file(file_to_delete) # Delete a file
 copy_and_rename_file(source_file, destination_file) # Copy and rename a file
 
-
+# Usage
+file_to_delete = r"C:\Users\tyewf\github_projects\xlsx_reporting\inputs\xlsx_templates\customer_report.xlsx"
+source_file = r"C:\Users\tyewf\github_projects\xlsx_reporting\inputs\xlsx_templates\customer_report - Original.xlsx"
+destination_file = file_to_delete
+delete_file(file_to_delete) # Delete a file
+copy_and_rename_file(source_file, destination_file) # Copy and rename a file

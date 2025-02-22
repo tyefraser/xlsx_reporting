@@ -104,8 +104,7 @@ def main():
         # Load input data
         input_data_dict = input_data_loader(input_files_folder, config)
 
-        # ✅ TODO: Implement remaining logic to process Excel templates
-        logger.info("🚀 Processing Excel templates...")
+        # Add data to output excel files
         add_data_to_files(config['output_from_input_dict'], input_data_dict, xlsx_templates_folder, outputs_folder, report_date)
 
     except Exception as e:

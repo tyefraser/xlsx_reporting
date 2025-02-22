@@ -83,3 +83,30 @@ output_from_input_dict:
             column_types:
               "Regions": string
               "Sales": float64
+  customer_report.xlsx:
+    tables: # Specify the tables in the Excel that you want to add data to
+      customers:
+        customer_data.csv:
+          column_mapping:
+            "First": "First Name"
+            "Last": "Last Name"
+            "Start": "Start Date"
+            "Sales": "Total Sales"
+          column_types:
+            "First": string
+            "Last": string
+            "Start": date
+            "Sales": float64
+    sheets:
+      customers_flat:
+        customer_data.csv:
+          column_mapping:
+            "First": "First Name"
+            "Last": "Last Name"
+            "Start": "Start Date"
+            "Sales": "Total Sales"
+          column_types:
+            "First": string
+            "Last": string
+            "Start": date
+            "Sales": float64

@@ -1,138 +1,61 @@
 import os
+import logging
 import pandas as pd
+from pathlib import Path
 from openpyxl import load_workbook
-from logger_config import logger
-from utils import validate_file
-from update_xlsx_data import replace_table_data, get_excel_table_details
+from openpyxl.utils import get_column_letter
 
-# Constants
-XL_TABLE = "xl_table"
-XL_SHEET = "xl_sheet"
+logger = logging.getLogger(__name__)
 
-def validate_single_key(py_dict):
-    """
-    Validates that a dictionary contains only a single key.
-    Logs an error and raises ValueError if multiple keys are present.
+def load_input_data(input_files_folder, input_data_dict):
 
-    Parameters:
-        py_dict (dict): Dictionary to validate.
+    logger.info("-" * 50)
+    logger.info("Loading input data required")
 
-    Returns:
-        bool: True if valid, otherwise raises ValueError.
-    """
-    if len(py_dict.keys()) != 1:
-        error_msg = f"❌ Error: Expected a single key, but multiple were found: {list(py_dict.keys())}"
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    return True
-
-
-def add_file_to_load_info(file_info, files_to_load):
-    """
-    Updates the `files_to_load` dictionary with required files and columns.
-
-    Ensures:
-    - The dictionary entry exists before updating.
-    - Only unique column names are stored.
-
-    Parameters:
-        file_info (dict): Dictionary containing file metadata (name, column mappings, types).
-        files_to_load (dict): Dictionary tracking which files need to be processed.
-
-    Returns:
-        dict: Updated `files_to_load` dictionary.
-    """
-    logger.info("📂 Adding file information to load info")
-
-    # Validate that `file_info` contains only one key
-    validate_single_key(file_info)
-
-    for file_name, data_info in file_info.items():
+    for file_name, data_config in input_data_dict.items():
         file_extension = os.path.splitext(file_name)[1].lower()  # Normalize file extension
 
-        if file_extension == ".csv":
-            # Initialize entry if not exists
-            files_to_load.setdefault(file_name, {"cols": set()})
+        if file_extension == '.csv':
+            logger.info(f"TO DO - import csv data")
 
-            # Extract column names from mappings and types
-            column_mapping_keys = set(data_info.get("column_mapping", {}).keys())
-            column_types_keys = set(data_info.get("column_types", {}).keys())
+        elif file_extension == '.xlsx':
+            file_path=os.path.join(input_files_folder, file_name)
+            file_path=Path(file_path)
+            print(f"file_path:{file_path}")
+            wb = load_workbook(file_path, data_only=False)
 
-            # Update the set with unique column names
-            files_to_load[file_name]["cols"].update(column_mapping_keys)
-            files_to_load[file_name]["cols"].update(column_types_keys)
+            for xl_type, xl_config in data_config.items():
+                if xl_type == "xl_sheets":
+                    for sheet_name, cols_dict in xl_config.items():
+                        data_pd = load_excel_sheet(
+                            file_path=file_path,
+                            sheet_name=sheet_name,
+                            columns_to_load=list(cols_dict['cols'])
+                        )
+                        input_data_dict[file_name][xl_type][sheet_name]["data"] = data_pd
 
-        elif file_extension == ".xlsx":
-            # Initialize entry if not exists
-            files_to_load.setdefault(file_name, {})
+                elif xl_type == "xl_tables":
+                    print(xl_config)
+                    for table_name, cols_dict in xl_config.items():
+                        print(f"table_name:{table_name}")
+                        print(f"cols_dict:{cols_dict}")
+                        for sheet in wb.worksheets:
+                            print(f"sheet:{sheet}")
+                            if hasattr(sheet, "tables"):  # Tables exist in the sheet
+                                for table in sheet.tables.values():
+                                    print(f"table:{table}")
+                                    if table.name == table_name:
+                                        if table.ref: # Returns the table range like "A1:C10"
+                                            print(f"table.ref:{table.ref}")
+                                            df = pd.DataFrame(sheet[table.ref])
 
-            for xl_type, xl_settings in data_info.items():
-                if xl_type not in {XL_TABLE, XL_SHEET}:
-                    raise ValueError(f"❌ Error: Unsupported `xl_type`: {xl_type}")
+                                            # Convert openpyxl Cell objects to values
+                                            df = df.applymap(lambda cell: cell.value)
+                                            
+                                            # Set column headers
+                                            df.columns = df.iloc[0]  # First row as header
+                                            df = df[1:].reset_index(drop=True)  # Remove header row from data
 
-                category_key = "xl_tables" if xl_type == XL_TABLE else "xl_sheets"
-                files_to_load[file_name].setdefault(category_key, {})
+                                            input_data_dict[file_name][xl_type][table_name]["data"] = df
 
-                xl_name = xl_settings.get("name")
-                if not xl_name:
-                    raise ValueError(f"❌ Error: Missing name for {xl_type}")
-
-                files_to_load[file_name][category_key].setdefault(xl_name, {"cols": set()})
-
-                # Extract column names from mappings and types
-                column_mapping_keys = set(xl_settings.get("column_mapping", {}).keys())
-                column_types_keys = set(xl_settings.get("column_types", {}).keys())
-
-                # Update the set with unique column names
-                files_to_load[file_name][category_key][xl_name]["cols"].update(column_mapping_keys)
-                files_to_load[file_name][category_key][xl_name]["cols"].update(column_types_keys)
-
-        else:
-            raise ValueError(f"❌ Error: Unsupported file extension: {file_extension}")
-
-    return files_to_load
-
-
-def input_data_loader(input_files_folder, config):
-    """
-    Loads input data based on the configuration file.
-
-    - Determines which files and columns need to be loaded.
-    - Updates `files_to_load` dictionary to track processing requirements.
-
-    Parameters:
-        input_files_folder (str): Path to the folder containing input files.
-        config (dict): Configuration dictionary specifying data sources.
-
-    Returns:
-        dict: Dictionary containing input data.
-    """
-    for _ in range(2): logger.info("")
-    logger.info("-" * 50)
-    logger.info("🚀 RUNNING INPUT DATA LOADER")
-    logger.info("-" * 50)
-
-    files_to_load = {}
-
-    # Iterate through config to determine required input files
-    for output_file, outputs in config.get("output_from_input_dict", {}).items():
-        logger.info(f"📁 Processing Output File: {output_file}")
-
-        # Process tables
-        logger.info("-" * 50)
-        logger.info("Processing tables input data")
-        for _, file_info in outputs.get("tables", {}).items():
-            files_to_load = add_file_to_load_info(file_info, files_to_load)
-
-        # Process sheets
-        logger.info("-" * 50)
-        logger.info("Processing sheet input data")
-        for _, file_info in outputs.get("sheets", {}).items():
-            files_to_load = add_file_to_load_info(file_info, files_to_load)
-
-    logger.info(f"✅ Files to Load: {files_to_load}")
-
-    # TO DO: Implement actual file loading logic
-
-    logger.info("📂 INPUT DATA LOAD COMPLETE\n")
-    return files_to_load
+    return input_data_dict

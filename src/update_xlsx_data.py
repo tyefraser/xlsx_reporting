@@ -8,7 +8,7 @@ from logger_config import logger
 import shutil
 
 
-def check_sheet_table_details(table_details: pd.DataFrame) -> pd.DataFrame:
+def validate_sheet_table_details(table_details: pd.DataFrame) -> pd.DataFrame:
     """
     Checks for overlapping table regions within a given sheet.
 
@@ -60,10 +60,10 @@ def check_sheet_table_details(table_details: pd.DataFrame) -> pd.DataFrame:
         logger.info("✅ No overlapping tables found.")
 
     except Exception as e:
-        logger.critical(f"Unexpected error in check_sheet_table_details: {e}", exc_info=True)
+        logger.critical(f"Unexpected error in validate_sheet_table_details: {e}", exc_info=True)
         raise  # Re-raise the exception for visibility
 
-def check_table_details_in_file(table_details: pd.DataFrame):
+def validate_table_details_in_file(table_details: pd.DataFrame):
     """
     Validates table details in a given DataFrame by checking:
     - Table names are unique.
@@ -109,21 +109,21 @@ def check_table_details_in_file(table_details: pd.DataFrame):
             sheet_table_details = table_details[table_details["sheet_name"] == sheet_name]
             logger.info(f"🔍 Processing sheet: {sheet_name} with {len(sheet_table_details)} tables.")
             try:
-                check_sheet_table_details(sheet_table_details)  # Ensure this function is defined elsewhere
+                validate_sheet_table_details(sheet_table_details)  # Ensure this function is defined elsewhere
             except Exception as e:
                 logger.error(f"Error processing sheet '{sheet_name}': {e}", exc_info=True)
 
         return table_details
 
     except Exception as e:
-        logger.critical(f"Unexpected error in check_table_details_in_file: {e}", exc_info=True)
+        logger.critical(f"Unexpected error in validate_table_details_in_file: {e}", exc_info=True)
         return None  # Return None if an error occurs
 
 def check_table_details_across_files(table_details):
 
     for file in table_details["file_path"]:
         table_details_file = table_details[table_details["file_path"] == file]
-        check_table_details_in_file(table_details_file)
+        validate_table_details_in_file(table_details_file)
 
     return table_details
 
@@ -151,57 +151,115 @@ def table_details_structure(table_details: pd.DataFrame) -> pd.DataFrame:
         # Sort by file_path, sheet_name, and table_name
         table_details = table_details.sort_values(by=["file_path", "sheet_name", "start_row_number"]).reset_index(drop=True)
 
-        logger.info("✅ Table structure validated and sorted successfully.")
+        logger.info("✅ table_details structure validated and sorted successfully.")
         return table_details
 
     except Exception as e:
         logger.critical(f"Error in table_details_structure: {e}", exc_info=True)
         raise  # Re-raise the exception for visibility
 
-def get_excel_table_details(file_path):
-    """Extracts table information from an Excel file."""
-    wb = load_workbook(file_path, data_only=False)  # Load workbook
-    table_info = []
+def xl_range_details(
+        xl_range # e.g. A1:B10
+):
+    start_cell_ref, end_cell_ref = xl_range.split(":")
+    start_col_letter, start_row_number = coordinate_from_string(start_cell_ref)
+    start_col_number = column_index_from_string(start_col_letter)
+    end_col_letter, end_row_number = coordinate_from_string(end_cell_ref)
+    end_col_number = column_index_from_string(end_col_letter)
 
-    for sheet_name in wb.sheetnames:
-        ws = wb[sheet_name]  # Get the worksheet
+    return (
+        start_cell_ref,
+        end_cell_ref,
+        start_col_letter,
+        start_row_number,
+        start_col_number,
+        end_col_letter,
+        end_row_number,
+        end_col_number,
+    )
 
-        # Loop through all tables and get their ranges
-        for table_name, table_range in ws.tables.items():
-            #start_cell_ref, end_cell_ref = table_range.split(":")  # Extract table range
-            start_cell_ref, end_cell_ref = ws.tables[table_name].ref.split(":")
 
-            # Extract column letter and row number
-            start_col_letter, start_row_number = coordinate_from_string(start_cell_ref)
-            start_col_number = column_index_from_string(start_col_letter)
-            end_col_letter, end_row_number = coordinate_from_string(end_cell_ref)
-            end_col_number = column_index_from_string(end_col_letter)
+def get_excel_table_details(file_path: str):
+    """
+    Extracts table information from an Excel file.
 
-            # Store values in a list
+    Args:
+        file_path (str): Path to the Excel file.
+
+    Returns:
+        tuple: A tuple containing:
+            - wb (Workbook): Loaded openpyxl workbook object.
+            - table_details (pd.DataFrame): DataFrame containing table details.
+    
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        ValueError: If the file does not contain any tables.
+    """
+    try:
+        # Load the workbook
+        wb = load_workbook(file_path, data_only=False)
+        table_info = []
+
+        for sheet_name in wb.sheetnames:
+            ws = wb[sheet_name]  # Access worksheet
+
+            # Extract table details
+            for table_name, table_range in ws.tables.items():
+                (
+                    start_cell_ref,
+                    end_cell_ref,
+                    start_col_letter,
+                    start_row_number,
+                    start_col_number,
+                    end_col_letter,
+                    end_row_number,
+                    end_col_number,
+                ) = xl_range_details(table_range)
+
+                # Store extracted information
+                table_info.append({
+                    "file_path": file_path,
+                    "sheet_name": sheet_name,
+                    "table_name": table_name,
+                    "start_row_number": int(start_row_number),
+                    "end_row_number": int(end_row_number),
+                    "start_col_number": int(start_col_number),
+                    "end_col_number": int(end_col_number)
+                })
+
+        # Handle case where no tables are found
+        if not table_info:
+            logger.info(f"No tables found in the provided Excel file: {file_path}")
             table_info.append({
-                "file_path": file_path,
-                "sheet_name": sheet_name,
-                "table_name": table_name,
-                "start_row_number": int(start_row_number),
-                "end_row_number": int(end_row_number),
-                "start_col_number": int(start_col_number),
-                "end_col_number": int(end_col_number)
-                
+                "file_path": None,
+                "sheet_name": None,
+                "table_name": None,
+                "start_row_number": None,
+                "end_row_number": None,
+                "start_col_number": None,
+                "end_col_number": None,
             })
 
-    # Convert list to DataFrame
-    table_details = pd.DataFrame(table_info)
-    print(f"table_details:{table_details}")
+        # Convert list to DataFrame
+        table_details = pd.DataFrame(table_info)
 
-    # Validate and sort table details using the separate function
-    table_details = table_details_structure(table_details)
-    print(f"table_details:{table_details}")
+        # Validate and process table details
+        table_details = table_details_structure(table_details)
+        table_details = validate_table_details_in_file(table_details)
 
-    # Perform checks
-    table_details = check_table_details_in_file(table_details)
-    print(f"table_details:{table_details}")
+        logger.info(f"table_details:\n{table_details}")
+        logger.info(f"Extracted table details from Excel file: {file_path}")
+        logger.debug(f"Table details DataFrame:\n{table_details}")
 
-    return wb, table_details
+        return wb, table_details
+
+    except FileNotFoundError:
+        logger.error(f"File not found: {file_path}")
+        raise
+    except Exception as e:
+        logger.exception(f"An error occurred while processing the Excel file: {file_path}")
+        raise
+
 
 def ws_table_to_df(ws, table_name):
     # Get table from the ws
@@ -427,7 +485,7 @@ def copy_template_to_output(xlsx_templates_folder, outputs_folder, template_name
         raise FileNotFoundError(f"❌ Error: Template file '{template_path}' not found.")
 
     try:
-        shutil.copy(template_path, output_path)  # ✅ Copies the file
+        shutil.copy(template_path, output_path)
         logger.info(f"✅ Template copied to: {output_path}")
         return output_path
     except IOError as e:
@@ -435,20 +493,24 @@ def copy_template_to_output(xlsx_templates_folder, outputs_folder, template_name
 
 
 def get_df_data(data_source, input_data_dict):
-
-    print(f"input_data_dict:{input_data_dict}")
+    logger.debug("Running: get_df_data")
+    logger.debug(f"data_source:{data_source}")
+    logger.debug(f"input_data_dict:{input_data_dict}")
 
     for file_name, data_config in data_source.items():
         file_extension = os.path.splitext(file_name)[1].lower()  # Normalize file extension
-
-        print(f"file_name:{file_name}")
+        # logger.debug(f"file_name:{file_name}")
+        # logger.debug(f"data_config:{data_config}")
 
         if file_extension == '.csv':
-            logger.info(f"TO DO - import csv data")
+            input_data = input_data_dict[file_name]["data"]
+            input_data = input_data.rename(columns=data_config['column_mapping'])
+            final_columns = list(data_config['column_mapping'].values())
+            input_data = input_data[final_columns]
+            return input_data
 
         elif file_extension == '.xlsx':
             for xl_type, xl_config in data_config.items():
-                print(f"xl_config:{xl_config}")
                 if xl_type == "xl_sheet":
                     input_data = input_data_dict[file_name]["xl_sheets"][xl_config['name']]['data']
                     input_data = input_data.rename(columns=xl_config['column_mapping'])
@@ -457,14 +519,8 @@ def get_df_data(data_source, input_data_dict):
                     return input_data
 
                 elif xl_type == "xl_table":
-                    print(f"input_data_dict:{input_data_dict}")
-                    print(f"file_name:{file_name}")
-                    print(f"xl_config['name']:{xl_config['name']}")
                     input_data = input_data_dict[file_name]["xl_tables"][xl_config['name']]['data']
-                    print(f"input_data:{input_data}")
-                    print(f"xl_config['column_mapping']:{xl_config['column_mapping']}")
                     input_data = input_data.rename(columns=xl_config['column_mapping'])
-                    print(f"input_data:{input_data}")
                     final_columns = list(xl_config['column_mapping'].values())
                     input_data = input_data[final_columns]
                     return input_data
@@ -488,7 +544,7 @@ def replace_table_data(
         input_data,
 ):
     logger.info("-" * 50)
-    logger.info(f"Replacing data in table {table_name}")
+    logger.info(f"Replacing data in table: '{table_name}'")
 
     try:
         # Validate table exists
@@ -582,24 +638,29 @@ def add_data_to_files(
 ):
     logger.info("")
     logger.info("-" * 50)
-    logger.info("Adding data to files")
+    logger.info("ADDING DATA TO FILES")
     logger.info("-" * 50)
 
     for template_name, type_config in output_from_input_dict.items():
         output_path=copy_template_to_output(xlsx_templates_folder, outputs_folder, template_name)
+        logger.info("-")
         logger.info(f"Adding data to {output_path}.")
 
         # Load workbook once at the start
         wb, table_details = get_excel_table_details(output_path)
+        logger.debug(f"table_details:\n{table_details}")
 
         for output_type, input_config in type_config.items():
             if output_type == 'tables':
+                logger.debug(f"Adding data into tables")
+                logger.debug(f"input_config:\n{input_config}")
                 for table_name, data_source in input_config.items():
+                    logger.debug(f"table_name:{table_name}")
+                    logger.debug(f"data_source:{data_source}")
+                    logger.debug(f"input_data_dict:{input_data_dict}")
                     # Load workbook and table details
-                    logger.info(f"wb:{wb}")
-                    logger.info(f"table_details:{table_details}")
-
                     input_data = get_df_data(data_source, input_data_dict)
+                    logger.debug(f"input_data:{input_data}")
                     wb, table_details = replace_table_data(
                         wb=wb,
                         table_details=table_details,
@@ -610,6 +671,7 @@ def add_data_to_files(
                     wb.save(output_path)
 
             elif output_type == 'sheets':
+                logger.debug(f"Adding data into sheets")
 
                 for sheet_name, data_source in input_config.items():
                     input_data = get_df_data(data_source, input_data_dict)
@@ -627,4 +689,3 @@ def add_data_to_files(
                 logger.error(error_message)
                 raise ValueError(error_message)
 
-        logger.info(f"✅ Successfully updated table '{table_name}' in '{output_path}'.")
