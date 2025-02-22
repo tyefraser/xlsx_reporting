@@ -1,0 +1,85 @@
+output_from_input_dict:
+  employee_report.xlsx: # Excel to copy to the outputs folder and add all the data to it
+    tables: # Specify the tables in the Excel that you want to add data to
+      employees_list:
+        employee_data.xlsx:
+          xl_sheet:
+            name: "Employees"
+            column_mapping:
+              "First": "First Name"
+              "Last": "Last Name"
+              "Id": "Identifier"
+            column_types:
+              "First": string
+              "Last": string
+              "Id": string
+      employee_hours:
+        employee_data.xlsx:
+          xl_sheet:
+            name: "Hours"
+            column_mapping:
+              "First": "First Name"
+              "Last": "Last Name"
+              "Rate": "Rate"
+              "Hours": "Hours"
+            column_types:
+              "First": string
+              "Last": string
+              "Rate": float64
+              "Hours": float64
+    sheets: # Specify the sheets in the Excel that you want to directly add data to
+      # Note: Any data already existing in this sheet will be removed
+      employees_list: # This is the sheet you want to add data to
+        employee_data.xlsx:
+          xl_sheet:
+            name: "Employees"
+            column_mapping:
+              "First": "First Name"
+              "Last": "Last Name"
+              "Id": "Identifier"
+              "Start": "Start Date"
+              "Position": "Position"
+            column_types:
+              "First": string
+              "Last": string
+              "Id": string
+              "Start": date
+              "Position": string
+      hours:
+        employee_data.xlsx:
+          xl_sheet:
+            name: "Hours"
+            column_mapping:
+              "First": "First Name"
+              "Last": "Last Name"
+              "Hours": "Hours"
+              "Location": "Location"
+            column_types:
+              "First": string
+              "Last": string
+              "Hours": float64
+              "Location": string
+  industry_report.xlsx:
+    tables: # Specify the tables in the Excel that you want to add data to
+      companies:
+        industry_data.xlsx:
+          xl_table:
+            name: "companies_input"
+            column_mapping:
+              "Company Name": "Company Name"
+              "Shares": "Shares Outstanding"
+              "Price": "Share Price"
+            column_types:
+              "Company Name": string
+              "Shares": float64
+              "Price": float64
+      region_stats:
+        industry_data.xlsx:
+          xl_table:
+            name: "regions"
+            column_mapping:
+              "Regions": "Region Code"
+              "Sales": "Total Sales"
+            column_types:
+              "Regions": string
+              "Sales": float64

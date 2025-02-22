@@ -1,0 +1,130 @@
+2025-02-23 00:16:06,184 - INFO - root - ✅ Logger initialized. Writing logs to: C:\Users\tyewf\github_projects\xlsx_reporting\logs\2025-02-23_00-16-06.log
+2025-02-23 00:16:06,184 - INFO - hybrid_logger - Logger successfully configured.
+2025-02-23 00:16:06,195 - INFO - hybrid_logger - 
+2025-02-23 00:16:06,195 - INFO - hybrid_logger - 
+2025-02-23 00:16:06,195 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,195 - INFO - hybrid_logger - Running Main
+2025-02-23 00:16:06,196 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,199 - INFO - hybrid_logger - 
+2025-02-23 00:16:06,199 - INFO - hybrid_logger - 
+2025-02-23 00:16:06,200 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,200 - INFO - hybrid_logger - 🔍 Extracting and validating arguments...
+2025-02-23 00:16:06,200 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,201 - INFO - hybrid_logger - ✅ Folder `inputs/input_files` exists!
+2025-02-23 00:16:06,202 - INFO - hybrid_logger - ✅ Folder `inputs/xlsx_templates` exists!
+2025-02-23 00:16:06,202 - INFO - hybrid_logger - ✅ Folder `outputs` exists!
+2025-02-23 00:16:06,202 - INFO - hybrid_logger - ✅ File `config/settings.yaml` exists!
+2025-02-23 00:16:06,202 - INFO - hybrid_logger - ✅ Date `2025-02-23` is in the correct format (yyyy-mm-dd)!
+2025-02-23 00:16:06,202 - INFO - hybrid_logger - ✅ Input Files Folder: inputs/input_files
+2025-02-23 00:16:06,203 - INFO - hybrid_logger - ✅ Excel Templates Folder: inputs/xlsx_templates
+2025-02-23 00:16:06,203 - INFO - hybrid_logger - ✅ Output Folder: outputs
+2025-02-23 00:16:06,203 - INFO - hybrid_logger - ✅ Report Date: 2025-02-23
+2025-02-23 00:16:06,203 - INFO - hybrid_logger - ✅ Config Path: config/settings.yaml
+2025-02-23 00:16:06,203 - INFO - hybrid_logger - Arguments extracted and validated.
+2025-02-23 00:16:06,204 - INFO - hybrid_logger - 📂 Loading configuration from: config/settings.yaml
+2025-02-23 00:16:06,208 - INFO - hybrid_logger - ✅ Configuration loaded successfully.
+2025-02-23 00:16:06,208 - INFO - hybrid_logger - 
+2025-02-23 00:16:06,208 - INFO - hybrid_logger - 
+2025-02-23 00:16:06,208 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,208 - INFO - hybrid_logger - 🚀 RUNNING INPUT DATA LOADER
+2025-02-23 00:16:06,209 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,209 - INFO - hybrid_logger - 📁 Processing Output File: employee_report.xlsx
+2025-02-23 00:16:06,209 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,209 - INFO - hybrid_logger - Processing tables input data
+2025-02-23 00:16:06,210 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,210 - INFO - hybrid_logger - Processing sheet input data
+2025-02-23 00:16:06,211 - INFO - hybrid_logger - 📁 Processing Output File: industry_report.xlsx
+2025-02-23 00:16:06,211 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,211 - INFO - hybrid_logger - Processing tables input data
+2025-02-23 00:16:06,212 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,212 - INFO - hybrid_logger - Processing sheet input data
+2025-02-23 00:16:06,216 - INFO - hybrid_logger - file_path:inputs\input_files\employee_data.xlsx
+2025-02-23 00:16:06,216 - INFO - hybrid_logger - sheet_name:Employees
+2025-02-23 00:16:06,216 - INFO - hybrid_logger - columns_to_load:['Position', 'First', 'Last', 'Id', 'Start']
+2025-02-23 00:16:06,221 - INFO - hybrid_logger - file_path:inputs\input_files\employee_data.xlsx
+2025-02-23 00:16:06,221 - INFO - hybrid_logger - sheet_name:Hours
+2025-02-23 00:16:06,221 - INFO - hybrid_logger - columns_to_load:['Hours', 'Rate', 'First', 'Location', 'Last']
+2025-02-23 00:16:06,231 - INFO - hybrid_logger - 📂 INPUT DATA LOAD COMPLETE
+2025-02-23 00:16:06,231 - INFO - hybrid_logger - 🚀 Processing Excel templates...
+2025-02-23 00:16:06,231 - INFO - hybrid_logger - 
+2025-02-23 00:16:06,231 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,232 - INFO - hybrid_logger - Adding data to files
+2025-02-23 00:16:06,232 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,239 - INFO - hybrid_logger - ✅ Template copied to: outputs\employee_report.xlsx
+2025-02-23 00:16:06,239 - INFO - hybrid_logger - Adding data to outputs\employee_report.xlsx.
+2025-02-23 00:16:06,252 - INFO - hybrid_logger - ✅ Table structure validated and sorted successfully.
+2025-02-23 00:16:06,254 - INFO - hybrid_logger - ✅ PASS: Only one file provided in table_details.
+2025-02-23 00:16:06,255 - INFO - hybrid_logger - ✅ PASS: All table names are unique.
+2025-02-23 00:16:06,255 - INFO - hybrid_logger - ✅ PASS: All start rows/columns are less than end rows/columns.
+2025-02-23 00:16:06,256 - INFO - hybrid_logger - 🔍 Processing sheet: employees_combined with 2 tables.
+2025-02-23 00:16:06,256 - DEBUG - hybrid_logger - 🔍 Checking Table: employees_list (Rows 2 - 4)
+2025-02-23 00:16:06,257 - DEBUG - hybrid_logger - 🔍 Checking Table: employee_hours (Rows 7 - 9)
+2025-02-23 00:16:06,257 - INFO - hybrid_logger - ✅ No overlapping tables found.
+2025-02-23 00:16:06,260 - INFO - hybrid_logger - wb:<openpyxl.workbook.workbook.Workbook object at 0x000001F5DF9899C0>
+2025-02-23 00:16:06,262 - INFO - hybrid_logger - table_details:                      file_path          sheet_name      table_name  start_row_number  end_row_number  start_col_number  end_col_number
+0  outputs\employee_report.xlsx  employees_combined  employees_list                 2               4                 2               4
+1  outputs\employee_report.xlsx  employees_combined  employee_hours                 7               9                 2               5
+2025-02-23 00:16:06,269 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,269 - INFO - hybrid_logger - Replacing data in table employees_list
+2025-02-23 00:16:06,271 - INFO - hybrid_logger - Running: remove_data_from_xl_table
+2025-02-23 00:16:06,271 - INFO - hybrid_logger - Removed 1 rows from table 'employees_list', starting from row 3 in sheet 'employees_combined'.
+2025-02-23 00:16:06,273 - INFO - hybrid_logger - Updated table 'employees_list' reference to B2:D3.
+2025-02-23 00:16:06,273 - INFO - hybrid_logger - Updated table 'employee_hours' reference to B6:E8.
+2025-02-23 00:16:06,274 - INFO - hybrid_logger - Adding 2 rows to table 'employees_list' from row 4 onwards in sheet 'employees_combined'.
+2025-02-23 00:16:06,275 - INFO - hybrid_logger - Updated table 'employees_list' reference to B2:D5.
+2025-02-23 00:16:06,276 - INFO - hybrid_logger - Updated table 'employee_hours' reference to B8:E10.
+2025-02-23 00:16:06,276 - INFO - hybrid_logger - ✅ Successfully updated table 'employees_list'.
+2025-02-23 00:16:06,276 - INFO - hybrid_logger - 
+2025-02-23 00:16:06,286 - INFO - hybrid_logger - wb:<openpyxl.workbook.workbook.Workbook object at 0x000001F5DF9899C0>
+2025-02-23 00:16:06,289 - INFO - hybrid_logger - table_details:                      file_path          sheet_name      table_name  start_row_number  end_row_number  start_col_number  end_col_number
+0  outputs\employee_report.xlsx  employees_combined  employees_list                 2               5                 2               4
+1  outputs\employee_report.xlsx  employees_combined  employee_hours                 8              10                 2               5
+2025-02-23 00:16:06,295 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,295 - INFO - hybrid_logger - Replacing data in table employee_hours
+2025-02-23 00:16:06,297 - INFO - hybrid_logger - Running: remove_data_from_xl_table
+2025-02-23 00:16:06,297 - INFO - hybrid_logger - Removed 1 rows from table 'employee_hours', starting from row 9 in sheet 'employees_combined'.
+2025-02-23 00:16:06,299 - INFO - hybrid_logger - Updated table 'employee_hours' reference to B8:E9.
+2025-02-23 00:16:06,299 - INFO - hybrid_logger - Adding 2 rows to table 'employee_hours' from row 10 onwards in sheet 'employees_combined'.
+2025-02-23 00:16:06,300 - INFO - hybrid_logger - Updated table 'employee_hours' reference to B8:E11.
+2025-02-23 00:16:06,301 - INFO - hybrid_logger - ✅ Successfully updated table 'employee_hours'.
+2025-02-23 00:16:06,302 - INFO - hybrid_logger - 
+2025-02-23 00:16:06,334 - INFO - hybrid_logger - ✅ Successfully updated table 'employee_hours' in 'outputs\employee_report.xlsx'.
+2025-02-23 00:16:06,340 - INFO - hybrid_logger - ✅ Template copied to: outputs\industry_report.xlsx
+2025-02-23 00:16:06,341 - INFO - hybrid_logger - Adding data to outputs\industry_report.xlsx.
+2025-02-23 00:16:06,352 - INFO - hybrid_logger - ✅ Table structure validated and sorted successfully.
+2025-02-23 00:16:06,354 - INFO - hybrid_logger - ✅ PASS: Only one file provided in table_details.
+2025-02-23 00:16:06,354 - INFO - hybrid_logger - ✅ PASS: All table names are unique.
+2025-02-23 00:16:06,355 - INFO - hybrid_logger - ✅ PASS: All start rows/columns are less than end rows/columns.
+2025-02-23 00:16:06,355 - INFO - hybrid_logger - 🔍 Processing sheet: employees_combined with 2 tables.
+2025-02-23 00:16:06,356 - DEBUG - hybrid_logger - 🔍 Checking Table: companies (Rows 2 - 4)
+2025-02-23 00:16:06,357 - DEBUG - hybrid_logger - 🔍 Checking Table: region_stats (Rows 9 - 11)
+2025-02-23 00:16:06,357 - INFO - hybrid_logger - ✅ No overlapping tables found.
+2025-02-23 00:16:06,359 - INFO - hybrid_logger - wb:<openpyxl.workbook.workbook.Workbook object at 0x000001F5DF988430>
+2025-02-23 00:16:06,362 - INFO - hybrid_logger - table_details:                      file_path          sheet_name    table_name  start_row_number  end_row_number  start_col_number  end_col_number
+0  outputs\industry_report.xlsx  employees_combined     companies                 2               4                 2               4
+1  outputs\industry_report.xlsx  employees_combined  region_stats                 9              11                 2               3
+2025-02-23 00:16:06,378 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,378 - INFO - hybrid_logger - Replacing data in table companies
+2025-02-23 00:16:06,379 - INFO - hybrid_logger - Running: remove_data_from_xl_table
+2025-02-23 00:16:06,380 - INFO - hybrid_logger - Removed 1 rows from table 'companies', starting from row 3 in sheet 'employees_combined'.
+2025-02-23 00:16:06,381 - INFO - hybrid_logger - Updated table 'companies' reference to B2:D3.
+2025-02-23 00:16:06,382 - INFO - hybrid_logger - Updated table 'region_stats' reference to B8:C10.
+2025-02-23 00:16:06,382 - INFO - hybrid_logger - Adding 1 rows to table 'companies' from row 4 onwards in sheet 'employees_combined'.
+2025-02-23 00:16:06,384 - INFO - hybrid_logger - Updated table 'companies' reference to B2:D4.
+2025-02-23 00:16:06,384 - INFO - hybrid_logger - Updated table 'region_stats' reference to B9:C11.
+2025-02-23 00:16:06,384 - INFO - hybrid_logger - ✅ Successfully updated table 'companies'.
+2025-02-23 00:16:06,385 - INFO - hybrid_logger - 
+2025-02-23 00:16:06,403 - INFO - hybrid_logger - wb:<openpyxl.workbook.workbook.Workbook object at 0x000001F5DF988430>
+2025-02-23 00:16:06,405 - INFO - hybrid_logger - table_details:                      file_path          sheet_name    table_name  start_row_number  end_row_number  start_col_number  end_col_number
+0  outputs\industry_report.xlsx  employees_combined     companies                 2               4                 2               4
+1  outputs\industry_report.xlsx  employees_combined  region_stats                 9              11                 2               3
+2025-02-23 00:16:06,420 - INFO - hybrid_logger - --------------------------------------------------
+2025-02-23 00:16:06,421 - INFO - hybrid_logger - Replacing data in table region_stats
+2025-02-23 00:16:06,422 - INFO - hybrid_logger - Running: remove_data_from_xl_table
+2025-02-23 00:16:06,422 - INFO - hybrid_logger - Removed 1 rows from table 'region_stats', starting from row 10 in sheet 'employees_combined'.
+2025-02-23 00:16:06,424 - INFO - hybrid_logger - Updated table 'region_stats' reference to B9:C10.
+2025-02-23 00:16:06,424 - INFO - hybrid_logger - Adding 2 rows to table 'region_stats' from row 11 onwards in sheet 'employees_combined'.
+2025-02-23 00:16:06,426 - INFO - hybrid_logger - Updated table 'region_stats' reference to B9:C12.
+2025-02-23 00:16:06,426 - INFO - hybrid_logger - ✅ Successfully updated table 'region_stats'.
+2025-02-23 00:16:06,427 - INFO - hybrid_logger - 
+2025-02-23 00:16:06,439 - INFO - hybrid_logger - ✅ Successfully updated table 'region_stats' in 'outputs\industry_report.xlsx'.
