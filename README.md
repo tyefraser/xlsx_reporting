@@ -2,13 +2,13 @@
 
 ### Automated Data Processing & Report Generation for Excel Files
 
-🚀 **Version:** 1.0.0 | 🛠 **Developed by:** [Your Name]
+🚀 **Version:** 1.0.0 | 🛠 **Developed by:** Tye Fraser
 
 ---
 
 ## 📖 Overview
 
-The **XLSX Reporting Automation** project is a Python-based tool designed to **automate data processing and report generation in Excel files**. This tool reads structured data from CSV/XLSX files, updates existing Excel templates, and generates formatted reports efficiently.
+The **XLSX Reporting Automation** project is a Python-based tool designed to **automate data processing and report generation in Excel files**. This tool reads structured data from CSV/XLSX file(s), uploads this data to specified locations in existing Excel template(s), and saves the updated output report(s).
 
 Built using **pandas** and **openpyxl**, this solution allows for **seamless data integration**, ensuring that Excel reports are consistently updated without manual effort.
 
@@ -62,16 +62,20 @@ xlsx_reporting/
 ### 2️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/xlsx_reporting.git
+git clone https://github.com/tyefraser/xlsx_reporting.git
 cd xlsx_reporting
 ```
 
 ### 3️⃣ Create a Virtual Environment
 
 ```bash
+# macOS/Linux
 python -m venv venv
-source venv/bin/activate  # macOS/Linux
-venv\Scripts\activate   # Windows
+source venv/bin/activate
+
+# Windows
+python -m venv venv
+venv\Scripts\activate
 ```
 
 ### 4️⃣ Install Dependencies
@@ -80,11 +84,53 @@ venv\Scripts\activate   # Windows
 pip install -r requirements.txt
 ```
 
+### 5️⃣ Update Report Templates, Input Files, and `settings.yaml`
+
+#### 📌 Report Templates
+
+It is often easiest to start with the **desired output `.xlsx` file**. This file will have **sheets for the input data** and **other sheets that rely on that data as output reports**. You can use **Excel `tables` or `sheets` as data sources**.
+
+- **Tables**: It is recommended to use the `table` feature in Excel and create named tables for structured data input. Ensure **tables do not overlap**.
+- **Sheets**: You can use plain sheets, but ensure only **one dataset per sheet** and that data starts in **cell A1**.
+
+✅ **Recommended Practice:** Only include necessary columns of data to keep file size small.
+
+#### 📌 Input Files
+
+Once the **report template structure** is finalized, prepare the **input data files**:
+
+- Store data in **CSV files** for better compatibility (recommended).
+- Alternatively, **Excel sheets or tables** can also be used.
+
+#### 📌 Configuring `settings.yaml`
+
+This file maps **input data sources** to **output templates**.
+
+1️⃣ **Define output report templates** under `output_from_input_dict`.  
+2️⃣ **Specify source locations** for input data (`tables` or `sheets`).  
+3️⃣ **List all column mappings** and **data types**.
+
+**Example Structure for `settings.yaml`**
+
+```yaml
+output_from_input_dict:
+  employee_report.xlsx:
+    tables:
+      employees_list:
+        csv: employee_data.csv
+        column_mapping:
+          emp_id: Employee ID
+          emp_name: Name
+        column_types:
+          emp_id: int
+          emp_name: str
+```
+
 ---
 
 ## ⚡ Usage
 
-### Command-Line Execution
+### **Command-Line Execution**
 
 Run the script with:
 
@@ -97,27 +143,9 @@ python src/main.py -i "inputs/input_files" -x "inputs/xlsx_templates"
 |----------|------------|---------|
 | `-i, --input_files_folder` | Path to the folder containing input data | `inputs/input_files` |
 | `-x, --xlsx_templates_folder` | Path to the folder containing Excel templates | `inputs/xlsx_templates` |
-
----
-
-## ⚙️ Configuration
-
-The `settings.yaml` file allows you to define **custom configurations**, such as:
-
-```yaml
-input_files_folder: "inputs/input_files"
-xlsx_templates_folder: "inputs/xlsx_templates"
-log_level: "INFO"
-```
-
----
-
-## 📌 Example Workflow
-
-1️⃣ **Prepare Data** – Place CSV/XLSX files into `inputs/input_files/`.  
-2️⃣ **Define Templates** – Ensure your Excel templates exist in `inputs/xlsx_templates/`.  
-3️⃣ **Run the Script** – Execute `python src/main.py`.  
-4️⃣ **Generate Reports** – Updated reports will be stored in `outputs/`.
+| `-o, --outputs_folder` | Path to the folder for the outputs to be copied to | `outputs` |
+| `-d, --report_date` | Date the report is generated (YYYY-MM-DD) | System run date |
+| `-c, --config_path` | Path to the config YAML file | `inputs/settings.yaml` |
 
 ---
 
@@ -128,7 +156,7 @@ All logs are saved in the `logs/` folder, making it easy to trace errors and deb
 **Common Errors & Fixes:**
 | Error Message | Cause | Solution |
 |--------------|-------|----------|
-| `FileNotFoundError: Input folder does not exist` | The specified input path is incorrect | Check folder path and settings.yaml |
+| `FileNotFoundError: Input folder does not exist` | The specified input path is incorrect | Check folder path and `settings.yaml` |
 | `ValueError: Tables are overlapping` | Data tables in Excel overlap | Ensure tables have distinct row ranges |
 | `ModuleNotFoundError: No module named 'pandas'` | Dependencies missing | Run `pip install -r requirements.txt` |
 
