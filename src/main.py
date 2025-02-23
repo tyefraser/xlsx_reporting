@@ -44,8 +44,8 @@ def parse_args():
     )
     parser.add_argument(
         "-c", "--config_path",
-        default="config/settings.yaml",
-        help="Path to the `settings.yaml` configuration file (default: config/settings.yaml)"
+        default="inputs/settings.yaml",
+        help="Path to the `settings.yaml` configuration file (default: inputs/settings.yaml)"
     )
 
     return parser.parse_args()
