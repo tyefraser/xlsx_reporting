@@ -16,6 +16,10 @@ from update_xlsx_data import add_data_to_files
 # 🔹 Parse Command-Line Arguments
 def parse_args():
     """Parses command-line arguments for sourcing input/output folders and configurations."""
+    for _ in range(2): logger.info("")
+    logger.info("-" * 50)
+    logger.info("🔍 Extracting and validating arguments...")
+    logger.info("-" * 50)
 
     parser = argparse.ArgumentParser(
         description="Batch process Excel templates, updating tables with new data sources."
@@ -48,20 +52,8 @@ def parse_args():
         help="Path to the `settings.yaml` configuration file (default: inputs/settings.yaml)"
     )
 
-    return parser.parse_args()
-
-
-# 🔹 Validate and Extract Arguments
-def extract_args():
-    """Extracts, validates, and assigns command-line arguments to variables."""
-
-    for _ in range(2): logger.info("")
-    logger.info("-" * 50)
-    logger.info("🔍 Extracting and validating arguments...")
-    logger.info("-" * 50)
-
-    # Parse arguments
-    args = parse_args()
+    logger.debug(f"Arguments loaded")
+    args = parser.parse_args()
 
     # Assign to separate variables
     input_files_folder = args.input_files_folder
@@ -73,23 +65,24 @@ def extract_args():
     # Perform necessary validations
     folder_list = [input_files_folder, xlsx_templates_folder, outputs_folder]
     for folder in folder_list:
+        logger.debug(f"Checking folder exists: {folder}")
         if not validate_folder(folder):
             raise FileNotFoundError(f"Missing folder: {folder}")
     if not validate_file(config_path):
+        logger.debug(f"Checking config file exists: {config_path}")
         raise FileNotFoundError(f"Missing file: {config_path}")
+    logger.debug(f"Checking report_date: {report_date}")
     is_valid_date(report_date)
 
-    logger.info(f"✅ Input Files Folder: {input_files_folder}")
-    logger.info(f"✅ Excel Templates Folder: {xlsx_templates_folder}")
-    logger.info(f"✅ Output Folder: {outputs_folder}")
-    logger.info(f"✅ Report Date: {report_date}")
-    logger.info(f"✅ Config Path: {config_path}")
+    return (
+        input_files_folder,
+        xlsx_templates_folder,
+        outputs_folder,
+        report_date,
+        config_path,
+    )
 
-    logger.info(f"Arguments extracted and validated.")
 
-    return input_files_folder, xlsx_templates_folder, outputs_folder, report_date, config_path
-
-# 🔹 Main Execution Function
 def main():
     """Main function for batch processing Excel files."""
     for _ in range(2): logger.info("")
@@ -99,7 +92,7 @@ def main():
     
     try:
         # Extract and validate arguments
-        input_files_folder, xlsx_templates_folder, outputs_folder, report_date, config_path = extract_args()
+        input_files_folder, xlsx_templates_folder, outputs_folder, report_date, config_path = parse_args()
 
         # Load Configuration
         config = config_loader(config_path)
