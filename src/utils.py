@@ -5,15 +5,19 @@ from logger_config import logger
 def validate_folder(folder_path):
     if os.path.exists(folder_path) and os.path.isdir(folder_path):
         logger.info(f"✅ Folder `{folder_path}` exists!")
+        return True
     else:
         logger.error(f"❌ Folder `{folder_path}` does NOT exist!")
+        return False
 
 
 def validate_file(file_path):
     if os.path.exists(file_path) and os.path.isfile(file_path):
         logger.info(f"✅ File `{file_path}` exists!")
+        return True
     else:
         logger.error(f"❌ File `{file_path}` does NOT exist!")
+        return False
 
 
 def is_valid_date(date_str):
