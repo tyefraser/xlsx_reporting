@@ -50,6 +50,7 @@ def parse_args():
 
     return parser.parse_args()
 
+
 # 🔹 Validate and Extract Arguments
 def extract_args():
     """Extracts, validates, and assigns command-line arguments to variables."""
@@ -70,10 +71,12 @@ def extract_args():
     config_path = args.config_path
 
     # Perform necessary validations
-    validate_folder(input_files_folder)
-    validate_folder(xlsx_templates_folder)
-    validate_folder(outputs_folder)
-    validate_file(config_path)
+    folder_list = [input_files_folder, xlsx_templates_folder, outputs_folder]
+    for folder in folder_list:
+        if not validate_folder(folder):
+            raise FileNotFoundError(f"Missing folder: {folder}")
+    if not validate_file(config_path):
+        raise FileNotFoundError(f"Missing file: {config_path}")
     is_valid_date(report_date)
 
     logger.info(f"✅ Input Files Folder: {input_files_folder}")
