@@ -126,7 +126,7 @@ output_from_input_dict:
           emp_name: str
 ```
 
-Please refer to the settings_yaml.md file for a more detailed explanation on how to populate the settings.yaml file.
+Please refer to the settings_yaml.md file in the inputs folder for a more detailed explanation on how to populate the settings.yaml file.
 
 ---
 
