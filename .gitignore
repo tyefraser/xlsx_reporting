@@ -30,7 +30,7 @@ Thumbs.db
 
 # Ignore data and temporary files
 *.csv
-*.xlsx
+# *.xlsx
 *.json
 *.db
 *.sqlite

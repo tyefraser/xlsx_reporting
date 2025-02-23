@@ -63,7 +63,7 @@ def parse_args():
     config_path = args.config_path
 
     # Perform necessary validations
-    folder_list = [input_files_folder, xlsx_templates_folder, outputs_folder]
+    folder_list = [input_files_folder, xlsx_templates_folder]
     for folder in folder_list:
         logger.debug(f"Checking folder exists: {folder}")
         if not validate_folder(folder):
@@ -73,6 +73,15 @@ def parse_args():
         raise FileNotFoundError(f"Missing file: {config_path}")
     logger.debug(f"Checking report_date: {report_date}")
     is_valid_date(report_date)
+
+    # Create Outputs folder if it doesn't exist
+    if not os.path.exists(outputs_folder):
+        logger.info(f"📁 Folder `{outputs_folder}` does not exist. Creating it now...")
+        os.makedirs(outputs_folder)
+        logger.info(f"✅ Folder `{outputs_folder}` has been created.")
+    else:
+        logger.info(f"✅ Folder `{outputs_folder}` already exists.")
+
 
     return (
         input_files_folder,

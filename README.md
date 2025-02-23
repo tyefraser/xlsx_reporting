@@ -75,7 +75,8 @@ source venv/bin/activate
 
 # Windows
 python -m venv venv
-venv\Scripts\activate
+venv\Scripts\activate # Terminal, or
+source venv/Scripts/activate # gitbash
 ```
 
 ### 4️⃣ Install Dependencies
